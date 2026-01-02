@@ -106,28 +106,27 @@ const getApiBaseUrl = () => {
   // 判断逻辑：
   // 1. 如果是开发环境且是本地地址，使用 Vite 代理（/api/coze）
   // 2. 如果在 NoCode 平台内，也尝试使用代理路径（如果平台配置了代理）
-  // 3. 生产环境（Vercel）使用简化的代理路径 /api/chat，通过 Vercel Serverless Function 处理
+  // 3. 生产环境（Vercel）使用简化的代理路径 /api，通过 Vercel Serverless Function 处理
   // 4. 否则直接使用 API 地址（可能遇到 CORS 问题）
+  let apiBaseUrl;
   if (isDevelopment && isLocalhost) {
     // 开发环境使用 Vite 代理
-    return '/api/coze';
-  }
-  if (isInNoCodePlatform) {
+    apiBaseUrl = '/api/coze';
+  } else if (isInNoCodePlatform) {
     // NoCode 平台内使用代理路径
-    return '/api/coze';
-  }
-  if (!isLocalhost) {
+    apiBaseUrl = '/api/coze';
+  } else if (!isLocalhost) {
     // 生产环境（Vercel）使用简化的代理路径
-    return '/api';
+    apiBaseUrl = '/api';
+  } else {
+    // 其他情况直接使用 API 地址（可能遇到 CORS 问题）
+    apiBaseUrl = 'https://api.coze.cn';
   }
-  // 其他情况直接使用 API 地址（可能遇到 CORS 问题）
-  return 'https://api.coze.cn';
   
   console.log('[Coze API] URL 选择:', {
     isDevelopment,
     isLocalhost,
     isInNoCodePlatform,
-    useProxy,
     apiBaseUrl,
     hostname: typeof window !== 'undefined' ? window.location.hostname : 'unknown'
   });
@@ -216,7 +215,11 @@ export const sendMessage = async (conversationId, userMessage, stream = false) =
   try {
     // 使用 Coze Workflows Chat 端点
     const apiBaseUrl = getApiBaseUrl();
-    const workflowUrl = `${apiBaseUrl}/v1/workflows/chat`;
+    // 如果使用简化的代理路径 /api，直接使用 /api/chat
+    // 否则使用完整路径 /api/coze/v1/workflows/chat 或 https://api.coze.cn/v1/workflows/chat
+    const workflowUrl = apiBaseUrl === '/api' 
+      ? '/api/chat'
+      : `${apiBaseUrl}/v1/workflows/chat`;
     const currentWorkflowId = COZE_WORKFLOW_ID();
     console.log('运行工作流 - 请求URL:', workflowUrl);
     console.log('运行工作流 - Workflow ID:', currentWorkflowId);
