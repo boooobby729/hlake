@@ -57,7 +57,12 @@ export const NoCodeProvider = ({ children }) => {
   useEffect(() => {
     // 在开发环境下且 SDK 不可用时，不尝试初始化
     if (isDevelopment && !isAvailable) return;
-    if (!isAvailable || isReady || isLoading || initError) return;
+    // 独立部署：如果 SDK 不可用，直接标记为 ready（不需要初始化）
+    if (!isAvailable) {
+      setIsReady(true);
+      return;
+    }
+    if (isReady || isLoading || initError) return;
 
     const initSDK = async () => {
       setIsLoading(true);
