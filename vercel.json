@@ -6,6 +6,10 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/api/coze/:path*",
+      "destination": "/api/coze/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
