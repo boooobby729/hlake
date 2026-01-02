@@ -95,8 +95,14 @@ export const NoCodeProvider = ({ children }) => {
     isReady,
   }), [isReady]);
 
-  // 在开发环境下始终显示内容以便预览，生产环境下需要等待 SDK 初始化完成
-  const shouldRenderChildren = useMemo(() => isReady || isDevelopment, [isReady, isDevelopment]);
+  // 独立部署：如果 SDK 不可用，也显示内容（允许在无 SDK 环境下运行）
+  // 开发环境：始终显示内容
+  // 生产环境：SDK 可用时等待初始化完成，SDK 不可用时直接显示（独立部署模式）
+  const shouldRenderChildren = useMemo(() => {
+    if (isDevelopment) return true; // 开发环境始终显示
+    if (!isAvailable) return true; // SDK 不可用，允许独立部署
+    return isReady; // SDK 可用时，等待初始化完成
+  }, [isReady, isDevelopment, isAvailable]);
   
   // 调试信息
   useEffect(() => {
