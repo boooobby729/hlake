@@ -104,12 +104,24 @@ const getApiBaseUrl = () => {
   const isInNoCodePlatform = typeof window !== 'undefined' && typeof window.NoCode !== 'undefined';
   
   // 判断逻辑：
-  // 1. 如果是开发环境且是本地地址，使用代理（Vite 代理可用）
+  // 1. 如果是开发环境且是本地地址，使用 Vite 代理（/api/coze）
   // 2. 如果在 NoCode 平台内，也尝试使用代理路径（如果平台配置了代理）
-  // 3. 生产环境（Vercel）使用代理路径，通过 Vercel Serverless Function 处理
+  // 3. 生产环境（Vercel）使用简化的代理路径 /api/chat，通过 Vercel Serverless Function 处理
   // 4. 否则直接使用 API 地址（可能遇到 CORS 问题）
-  const useProxy = (isDevelopment && isLocalhost) || isInNoCodePlatform || !isLocalhost;
-  const apiBaseUrl = useProxy ? '/api/coze' : 'https://api.coze.cn';
+  if (isDevelopment && isLocalhost) {
+    // 开发环境使用 Vite 代理
+    return '/api/coze';
+  }
+  if (isInNoCodePlatform) {
+    // NoCode 平台内使用代理路径
+    return '/api/coze';
+  }
+  if (!isLocalhost) {
+    // 生产环境（Vercel）使用简化的代理路径
+    return '/api';
+  }
+  // 其他情况直接使用 API 地址（可能遇到 CORS 问题）
+  return 'https://api.coze.cn';
   
   console.log('[Coze API] URL 选择:', {
     isDevelopment,
