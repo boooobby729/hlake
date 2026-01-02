@@ -30,10 +30,8 @@
 //   "workflow_version": "v0.0.23"
 // }'
 //
-const DEFAULT_COZE_API_TOKEN = 'pat_Bwj19XEVSglRJZhNjnuQ2aY0ZUB5CcK6SzGiSunRZSADkZRyR5UHbH3vMe5UJpT4'; // Coze API Token
-const DEFAULT_COZE_WORKFLOW_ID = '7588851266873720832'; // Workflow ID
-
-// 从环境变量、localStorage 或默认值读取配置（优先级：环境变量 > localStorage > 默认值）
+// 从环境变量或 localStorage 读取配置（优先级：环境变量 > localStorage）
+// 注意：不再使用硬编码的默认值，必须通过环境变量或应用内配置
 const getConfig = () => {
   // 优先从环境变量读取（Vercel 环境变量）
   const envToken = import.meta.env.VITE_COZE_API_TOKEN;
@@ -44,16 +42,16 @@ const getConfig = () => {
     const storedToken = localStorage.getItem('coze_api_token');
     const storedWorkflowId = localStorage.getItem('coze_workflow_id');
     
-    // 优先级：环境变量 > localStorage > 默认值
+    // 优先级：环境变量 > localStorage
     return {
-      token: envToken || storedToken || DEFAULT_COZE_API_TOKEN,
-      workflowId: envWorkflowId || storedWorkflowId || DEFAULT_COZE_WORKFLOW_ID,
+      token: envToken || storedToken || '',
+      workflowId: envWorkflowId || storedWorkflowId || '',
     };
   } catch (e) {
-    console.warn('无法读取 localStorage，使用环境变量或默认配置:', e);
+    console.warn('无法读取 localStorage，使用环境变量:', e);
     return {
-      token: envToken || DEFAULT_COZE_API_TOKEN,
-      workflowId: envWorkflowId || DEFAULT_COZE_WORKFLOW_ID,
+      token: envToken || '',
+      workflowId: envWorkflowId || '',
     };
   }
 };
