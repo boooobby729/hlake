@@ -109,15 +109,16 @@ const getApiBaseUrl = () => {
   // 3. 生产环境（Vercel）使用简化的代理路径 /api，通过 Vercel Serverless Function 处理
   // 4. 否则直接使用 API 地址（可能遇到 CORS 问题）
   let apiBaseUrl;
-  if (isDevelopment && isLocalhost) {
+  
+  // 生产环境（非 localhost）直接使用简化的代理路径
+  if (!isLocalhost) {
+    apiBaseUrl = '/api';
+  } else if (isDevelopment && isLocalhost) {
     // 开发环境使用 Vite 代理
     apiBaseUrl = '/api/coze';
   } else if (isInNoCodePlatform) {
     // NoCode 平台内使用代理路径
     apiBaseUrl = '/api/coze';
-  } else if (!isLocalhost) {
-    // 生产环境（Vercel）使用简化的代理路径
-    apiBaseUrl = '/api';
   } else {
     // 其他情况直接使用 API 地址（可能遇到 CORS 问题）
     apiBaseUrl = 'https://api.coze.cn';
