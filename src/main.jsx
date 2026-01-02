@@ -11,7 +11,7 @@ if (!window.location.hash || window.location.hash === '#') {
 }
 
 // 创建根节点并渲染应用
-const rootElement = document.getElementById('root');
+let rootElement = document.getElementById('root');
 if (!rootElement) {
   console.error('❌ 找不到 root 元素！');
   // 如果找不到 root，创建一个
