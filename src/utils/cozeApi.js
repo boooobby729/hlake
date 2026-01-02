@@ -216,12 +216,17 @@ export const sendMessage = async (conversationId, userMessage, stream = false) =
   try {
     // 使用 Coze Workflows Chat 端点
     const apiBaseUrl = getApiBaseUrl();
+    console.log('[调试] apiBaseUrl:', apiBaseUrl);
+    console.log('[调试] hostname:', typeof window !== 'undefined' ? window.location.hostname : 'unknown');
+    console.log('[调试] isDevelopment:', import.meta.env.MODE === 'development');
+    
     // 如果使用简化的代理路径 /api，直接使用 /api/chat
     // 否则使用完整路径 /api/coze/v1/workflows/chat 或 https://api.coze.cn/v1/workflows/chat
     const workflowUrl = apiBaseUrl === '/api' 
       ? '/api/chat'
       : `${apiBaseUrl}/v1/workflows/chat`;
     const currentWorkflowId = COZE_WORKFLOW_ID();
+    console.log('[调试] 最终 workflowUrl:', workflowUrl);
     console.log('运行工作流 - 请求URL:', workflowUrl);
     console.log('运行工作流 - Workflow ID:', currentWorkflowId);
     console.log('运行工作流 - 用户消息:', userMessage);
