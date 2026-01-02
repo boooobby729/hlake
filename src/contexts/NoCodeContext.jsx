@@ -3,11 +3,39 @@ import React, { createContext, useContext, useEffect, useState, useMemo } from '
 const NoCodeSDKContext = createContext();
 
 const useNoCodeSDKAvailability = () => {
+  const isDevelopment = import.meta.env.MODE === 'development';
   const [isAvailable, setIsAvailable] = useState(() => typeof window.NoCode !== 'undefined');
 
   useEffect(() => {
     if (isAvailable) return;
 
+    // 在生产环境下，如果初始检查 SDK 不可用，快速返回 false（不等待）
+    // 这样可以避免长时间等待 SDK 加载
+    if (!isDevelopment) {
+      // 只检查一次，如果 SDK 不可用，立即返回
+      const checkOnce = () => {
+        if (typeof window.NoCode !== 'undefined') {
+          setIsAvailable(true);
+          return true;
+        }
+        return false;
+      };
+      
+      // 立即检查一次
+      if (checkOnce()) return;
+      
+      // 再等待一小段时间（500ms），给 SDK 脚本加载的机会
+      const quickTimeout = setTimeout(() => {
+        // 500ms 后如果还是不可用，就不再等待了
+        if (typeof window.NoCode === 'undefined') {
+          // 保持 isAvailable 为 false，但不再继续检查
+        }
+      }, 500);
+      
+      return () => clearTimeout(quickTimeout);
+    }
+
+    // 开发环境下，保持原来的检查逻辑
     const checkAvailability = () => {
       if (typeof window.NoCode !== 'undefined') {
         setIsAvailable(true);
@@ -31,7 +59,7 @@ const useNoCodeSDKAvailability = () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [isAvailable]);
+  }, [isAvailable, isDevelopment]);
 
   return isAvailable;
 };
